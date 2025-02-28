@@ -46,17 +46,34 @@ class PokemonTest extends TestCase
     {
         $response = $this->get(self::BASE_APIS);
 
-        $response->assertStatus(200);
+        $response->assertStatus(200)
+                 ->assertJsonFragment([
+                    'status' => 'success',
+                    'message' => 'Welcome to the API'
+                ]);
+
     }
     
     /** @test */
     public function endpoint_is_ok(): void
     {
-        $this->markTestSkipped('This test is skipped.');
 
         $response = $this->get(self::BASE_URL_ENDPOINT);
 
-        $response->assertStatus(200);
+        $response->assertStatus(200)
+                ->assertJsonIsArray(['pokemons'])
+                ->assertJsonStructure([
+                    'status' => 'success',
+                    'pokemons' => [
+                        '*' => [
+                            'id',
+                            'name',
+                            'type',
+                            'height',
+                            'weight',
+                        ]
+                    ]
+                ]);
     }
 
     public static function notFoundPokemonProvider(): array
@@ -75,11 +92,15 @@ class PokemonTest extends TestCase
      **/
     public function status_404($pokemonId)
     {
-        $this->markTestSkipped('This test is skipped.');
+        // $this->markTestSkipped('This test is skipped.');
 
         $response = $this->get(self::BASE_URL_ENDPOINT . $pokemonId);
 
-        $response->assertStatus(404);
+        $response->assertStatus(404) 
+                 ->assertJsonFragment([
+                'status' => 'error',
+                'message' => 'Pokemon not found'
+            ]);
 
     }    
 
